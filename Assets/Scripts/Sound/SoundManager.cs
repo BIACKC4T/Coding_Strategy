@@ -157,50 +157,25 @@ public class SoundManager : MonoBehaviour
         return audioClip;
     }
 
-    // BGM 페이드아웃 및 페이드인
-    public void ChangeBGM(string newClipPath, float fadeDuration = 1.0f)
+
+    // BGM1을 멈추고 BGM2를 재생하는 함수
+    public void ChangeBGM(string nextSceneBgmPath, float startVolume = 1.0f)
     {
-        AudioClip newClip = GetorAddAudioClip(newClipPath, Sound.Bgm);
-        if (newClip != null)
+        AudioClip bgmClip = GetorAddAudioClip(nextSceneBgmPath, Sound.Bgm);
+        if (bgmClip != null)
         {
-            StartCoroutine(FadeOutAndChangeBGM(newClip, fadeDuration));
+            AudioSource bgm1 = _audioSources[(int)Sound.Bgm]; // 현재 재생 중인 BGM1 AudioSource 가져오기
+            bgm1.Stop(); // BGM1 재생 중지
+            bgm1.volume = startVolume; // BGM1의 시작 볼륨 설정
+
+            AudioSource bgm2 = _audioSources[(int)Sound.Bgm]; // BGM2 AudioSource 가져오기
+            bgm2.clip = bgmClip; // BGM2 클립 설정
+            bgm2.Play(); // BGM2 재생 시작
         }
         else
         {
-            Debug.LogWarning($"AudioClip not found at path: {newClipPath}");
+            Debug.LogError("Failed to load BGM clip: " + nextSceneBgmPath);
         }
-    }
-
-    private IEnumerator FadeOutAndChangeBGM(AudioClip newClip, float fadeDuration)
-    {
-        // 현재 BGM 페이드아웃
-        AudioSource audioSource = _audioSources[(int)Sound.Bgm];
-        float startVolume = audioSource.volume;
-
-        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
-        {
-            audioSource.volume = Mathf.Lerp(startVolume, 0, t / fadeDuration);
-            yield return null;
-        }
-
-        audioSource.volume = 0;
-        audioSource.Stop();
-
-        // 씬이 전환될 때까지 기다립니다.
-        yield return new WaitUntil(() => SceneManager.GetActiveScene().isLoaded);
-
-        // 새로운 BGM 설정 및 재생
-        audioSource.clip = newClip;
-        audioSource.Play();
-
-        // 새로운 BGM 페이드인
-        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
-        {
-            audioSource.volume = Mathf.Lerp(0, startVolume, t / fadeDuration);
-            yield return null;
-        }
-
-        audioSource.volume = startVolume;
     }
 }
 

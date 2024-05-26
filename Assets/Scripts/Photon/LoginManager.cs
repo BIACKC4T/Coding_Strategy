@@ -80,7 +80,6 @@ public class LoginManager : MonoBehaviourPunCallbacks
     {
         //로비 씬으로 이동합니다.
         SceneManager.LoadScene("GameLobby");
-        //sceneChanger.ChangeScene("GamemLobby", "Sound/GameLobby_Sleepy Sunshine");
         Debug.Log(PhotonNetwork.NickName + "님 환영합니다.");
     }
 
